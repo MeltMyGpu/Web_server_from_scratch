@@ -1,1 +1,1 @@
-/home/melt_my_gpu/code/rust/web_server_from_scratch/target/debug/web_server_client: /home/melt_my_gpu/code/rust/web_server_from_scratch/libs/melt_server/src/lib.rs /home/melt_my_gpu/code/rust/web_server_from_scratch/web_server_client/src/main.rs
+/home/melt_my_gpu/code/rust/web_server_from_scratch/target/debug/web_server_client: /home/melt_my_gpu/code/rust/web_server_from_scratch/libs/melt_server/src/http_request.rs /home/melt_my_gpu/code/rust/web_server_from_scratch/libs/melt_server/src/lib.rs /home/melt_my_gpu/code/rust/web_server_from_scratch/web_server_client/src/main.rs

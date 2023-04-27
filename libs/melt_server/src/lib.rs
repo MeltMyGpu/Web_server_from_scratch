@@ -2,6 +2,8 @@ use std::{
     net::{TcpListener, TcpStream},
     io::{BufReader, BufRead, Write},
 };
+
+use crate::http_request::HttpRequest;
 mod http_request;
 
 pub fn start_server() -> () {
@@ -23,7 +25,9 @@ fn handle_connection(mut stream: TcpStream) -> () {
         .collect();
     println!("Request was {:#?}", http_request);
 
+    let wrapped = HttpRequest::new(&http_request[0]).unwrap();
     successful_connection_responce(stream);
+    println!("Testing: {:?} {:?} {:?}",wrapped.request_type, wrapped.request_uri, wrapped.request_body );
     
     todo!()
 }
