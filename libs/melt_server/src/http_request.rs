@@ -47,5 +47,4 @@ impl HttpRequest {
 pub enum HttpRequestType {
     GET,
     POST,
-    ERR,
 }
