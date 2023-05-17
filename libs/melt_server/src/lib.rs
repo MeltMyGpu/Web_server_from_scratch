@@ -44,7 +44,7 @@ fn handle_connection(mut stream: TcpStream) -> () {
 /// A stand in OK 200 response for testing purposes
 fn successful_connection_responce(mut stream : TcpStream) {
     let response_code = "HTTP/1.1 200 OK";
-    let response_body = fs::read_to_string("index.html").unwrap();
+    let response_body = fs::read_to_string("testing_web_pages/index.html").unwrap();
     let response_body_length = response_body.len();
     let response = format!("{response_code}\r\nContent-Length: {response_body_length}\r\n\r\n{response_body}");
     stream.write_all(response.as_bytes()).unwrap();
