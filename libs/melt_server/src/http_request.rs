@@ -1,7 +1,9 @@
 
+
 use std::{
     error::Error,
-    fmt,
+    fmt, 
+    net::TcpStream,
 };
 
 #[derive(Debug,)]
@@ -18,16 +20,18 @@ impl fmt::Display for HttpRequestError {
 
 
 /// Http request content wrapper
+/// Stores both the key request information and the stream it was from.
+#[derive(Debug)]
 pub struct HttpRequest {
     pub request_type:HttpRequestType,
     pub request_uri: String,
     pub request_body: String,
+    pub request_stream: TcpStream,
 }
 impl HttpRequest {
     // basic ctor
-    pub fn new(request: &String) -> Result<Self,HttpRequestError> {
-        let parts = request.split(" ");
-        let parts = parts.collect::<Vec<&str>>();
+    pub fn new(request: &String, stream: TcpStream) -> Result<Self,HttpRequestError> {
+        let parts = request.split(" ").collect::<Vec<&str>>();
         let request_type = match parts[0] {
             "GET" => HttpRequestType::GET,
             "POST" => HttpRequestType::POST,
@@ -37,7 +41,8 @@ impl HttpRequest {
             HttpRequest { 
                 request_type,
                 request_uri: String::from(parts[1]),
-                request_body: String::new() 
+                request_body: String::new(),
+                request_stream: stream,
             })
     }
 }
