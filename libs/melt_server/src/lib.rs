@@ -1,4 +1,4 @@
-#![feature(format_args_capture)]
+//#![feature(format_args_capture)]
 use std::{
     net::{TcpListener, TcpStream},
     io::{BufReader, BufRead, Write}, 
@@ -6,6 +6,7 @@ use std::{
 };
 mod http_response_builder;
 mod http_request;
+mod api_services;
 use http_request::{
     HttpRequest,
     HttpRequestType
@@ -16,11 +17,9 @@ use http_request::{
 /// Starts server and runs port listener
 pub fn start_server() -> () {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    
     for stream in listener.incoming() {
         handle_connection(stream.unwrap());
-    }
-    
+    }   
 }
 
 // Receives a connection
@@ -37,6 +36,7 @@ fn handle_connection(mut stream: TcpStream) -> () {
     // Wrap the request information in a single object
     let wrapped = HttpRequest::new(&http_request[0], stream).unwrap();
     successful_connection_responce(wrapped.request_stream);
+    // Testing print
     println!("Testing: {:?} {:?} {:?}",wrapped.request_type, wrapped.request_uri, wrapped.request_body );
     
     todo!()

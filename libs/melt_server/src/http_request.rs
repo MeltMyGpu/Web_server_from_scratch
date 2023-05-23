@@ -6,6 +6,13 @@ use std::{
     net::TcpStream,
 };
 
+/// Htpp request type enum 
+#[derive(Debug)]
+pub enum HttpRequestType {
+    GET,
+    POST,
+}
+
 #[derive(Debug,PartialEq)]
 pub enum HttpRequestError {
     RequestWrapError,
@@ -16,8 +23,6 @@ impl fmt::Display for HttpRequestError {
         write!(f, "There has been an error when wrapping the Http request")
     }
 }
-
-
 
 /// Http request content wrapper
 /// Stores both the key request information and the stream it was from.
@@ -47,15 +52,8 @@ impl HttpRequest {
     }
 }
 
-/// Htpp request type enum 
-#[derive(Debug)]
-pub enum HttpRequestType {
-    GET,
-    POST,
-}
 
-
-
+// TESTS //
 #[cfg(test)]
 mod tests {
     use std::net::{TcpStream,TcpListener};
@@ -63,9 +61,10 @@ mod tests {
 
     #[test]
     fn provide_incorrect_status_code_returns_error() {
-        let lister = TcpListener::bind("127.0.0.1:7878").unwrap();
+        let _ = TcpListener::bind("127.0.0.1:7878").unwrap();
         let stream = TcpStream::connect("127.0.0.1:7878").unwrap();
         let fail_code: String = "crap".to_string();
+
         match HttpRequest::new(&fail_code, stream) {
             Ok(_) => assert!(false),
             Err(e) => assert!(e == HttpRequestError::RequestWrapError),
