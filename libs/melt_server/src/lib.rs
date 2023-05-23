@@ -4,7 +4,7 @@ use std::{
     io::{BufReader, BufRead, Write}, 
     fs,
 };
-
+mod http_response_builder;
 mod http_request;
 use http_request::{
     HttpRequest,
@@ -33,6 +33,7 @@ fn handle_connection(mut stream: TcpStream) -> () {
         .take_while(|line| !line.is_empty())
         .collect();
     println!("Request was {:#?}", http_request);
+
     // Wrap the request information in a single object
     let wrapped = HttpRequest::new(&http_request[0], stream).unwrap();
     successful_connection_responce(wrapped.request_stream);
@@ -67,13 +68,3 @@ fn handle_post_request(req : HttpRequest){
 
 
 
-
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn successful_connection_response() {
-        
-    }
-}

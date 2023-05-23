@@ -1,0 +1,10 @@
+
+-----
+Request reciveved:  "GET /index HTTP/1.1"
+Request made:       "127.0.0.2:7878/index"
+
+
+
+
+----
+Request recieved:   "GET / HTTP/1.1"

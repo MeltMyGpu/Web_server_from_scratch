@@ -6,7 +6,7 @@ use std::{
     net::TcpStream,
 };
 
-#[derive(Debug,)]
+#[derive(Debug,PartialEq)]
 pub enum HttpRequestError {
     RequestWrapError,
 }
@@ -52,4 +52,23 @@ impl HttpRequest {
 pub enum HttpRequestType {
     GET,
     POST,
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use std::net::{TcpStream,TcpListener};
+    use crate::http_request::*;
+
+    #[test]
+    fn provide_incorrect_status_code_returns_error() {
+        let lister = TcpListener::bind("127.0.0.1:7878").unwrap();
+        let stream = TcpStream::connect("127.0.0.1:7878").unwrap();
+        let fail_code: String = "crap".to_string();
+        match HttpRequest::new(&fail_code, stream) {
+            Ok(_) => assert!(false),
+            Err(e) => assert!(e == HttpRequestError::RequestWrapError),
+        };
+    }
 }
