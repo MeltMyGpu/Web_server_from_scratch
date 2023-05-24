@@ -44,6 +44,10 @@ impl Controller {
                     HttpRequestType::GET => {
                         self.get_handlers.insert(handler.route, handler);
                         // FUCK THIS
+                        // so update to self from phone, pretty sure this issue is entirely me
+                        // forgetting ownership rules, once I've moved the value out of handler.route,
+                        // i cant then move all of handler, as a partial move had occured.
+                        // so i need to either clone the route, or use a ref type?
                     }
                     HttpRequestType::POST => {}
                 }
@@ -62,7 +66,7 @@ struct Handler {
 impl Handler {
     fn new(
         route : String,
-        htthttp_method : HttpRequestType,
+        http_method : HttpRequestType,
         response_format: ResonseFormat,
         action : fn(HttpRequest) -> dyn ResponseTypes,
     ) -> Self {
