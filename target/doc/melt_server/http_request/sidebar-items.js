@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["HttpRequestError","HttpRequestType"],"struct":["HttpRequest"]};

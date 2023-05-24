@@ -4,9 +4,9 @@ use std::{
     io::{BufReader, BufRead, Write}, 
     fs,
 };
-mod http_response_builder;
-mod http_request;
-mod api_services;
+pub mod http_response_builder;
+pub mod http_request;
+pub mod api_services;
 use http_request::{
     HttpRequest,
     HttpRequestType

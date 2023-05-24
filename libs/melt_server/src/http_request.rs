@@ -7,13 +7,12 @@ use std::{
 };
 
 /// Htpp request type enum 
-#[derive(Debug)]
+#[derive(Debug,PartialEq,Clone)]
 pub enum HttpRequestType {
     GET,
     POST,
 }
-
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Clone)]
 pub enum HttpRequestError {
     RequestWrapError,
 }

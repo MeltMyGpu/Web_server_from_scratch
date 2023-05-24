@@ -1,90 +1,127 @@
-use std::{env::Args, collections::HashMap};
+use std::{ 
+    collections::HashMap
+};
 use crate::http_request::{
     HttpRequestType, HttpRequest
 };
 
-
-#[derive(Debug,PartialEq)]
+/// Enum for registering an API service repsonse format
+#[derive(Debug,PartialEq,Clone,Copy)]
 enum ResonseFormat {
     Http,
     ApplicationJson,
 }
 
-#[derive(Debug,PartialEq)]
-enum ControllerError {
+/// Custom error container for controller. 
+#[derive(Debug,PartialEq,Clone)]
+pub enum ControllerError {
     RegisteredInncorrectType(String),
 }
 
+/// Interface for response types
+pub trait ResponseTypes {
+    /// All responses must be converted to byte arrays before sending
+    fn response_as_bytes(&self) -> &[u8];
+}
 
-//////// TESTING AREA
-struct Controller {
-    get_handlers : HashMap<String, Handler>,
-    post_handlers : HashMap<String, Handler>,
-    put_handlers : HashMap<String, Handler>,
-    delete_handlers : HashMap<String, Handler>,
+
+/// Api Endpoint Controller.
+/// Searches registered endpoints for matches upon receiving a HttpRequest and calls the related fucntion, or returns a 404 response. 
+pub struct Controller {
+    get_handlers : HashMap<String, Service>,
+    post_handlers : HashMap<String, Service>,
+    put_handlers : HashMap<String, Service>,
+    delete_handlers : HashMap<String, Service>,
 }
 impl Controller {
-    fn new() -> Self {
+    // inits controller HashMaps, may not be needed
+    pub fn new() -> Self {
         Controller { 
             get_handlers : HashMap::new(), 
             post_handlers: HashMap::new(), 
             put_handlers: HashMap::new(), 
             delete_handlers: HashMap::new() }
     }
-    fn register_get(mut self, handlers : Vec<Handler>) -> Result<(),ControllerError>{
-        // handlers.into_iter().for_each(|handler| match handler.http_method {
-        //     HttpRequestType::GET => {
-        //         self.get_handlers.insert(handler.route, handler);
-                
-        //     }
-        //     HttpRequestType::POST => {}
-        // });
-        for handler in handlers {
-            match handler.http_method {
-                    HttpRequestType::GET => {
-                        self.get_handlers.insert(handler.route, handler);
-                        // FUCK THIS
-                        // so update to self from phone, pretty sure this issue is entirely me
-                        // forgetting ownership rules, once I've moved the value out of handler.route,
-                        // i cant then move all of handler, as a partial move had occured.
-                        // so i need to either clone the route, or use a ref type?
-                    }
-                    HttpRequestType::POST => {}
+
+    /// Used to register endpoints to the Controller
+    /// Can be called mulitple times
+    pub fn register_endpoints(mut self, handlers : Vec<Endpoint>) {
+        handlers.into_iter()
+            .for_each(|service| 
+                match service.handler.http_method {
+                    HttpRequestType::GET => {self.get_handlers.insert(service.route, service.handler);
+                    },
+                    HttpRequestType::POST => {
+                        self.get_handlers.insert(service.route, service.handler);
+                    },
                 }
-        }
-        todo!()
+            );
     }
 }
 
-
-struct Handler {
-    route : String,
+/// Structured container for an API Service
+#[derive(Clone)]
+pub struct Service {
     http_method : HttpRequestType,
     response_format: ResonseFormat,
-    action : fn(HttpRequest) -> dyn ResponseTypes,
+    action : fn(HttpRequest) -> Box<dyn ResponseTypes>,
 }
-impl Handler {
-    fn new(
-        route : String,
-        http_method : HttpRequestType,
-        response_format: ResonseFormat,
-        action : fn(HttpRequest) -> dyn ResponseTypes,
-    ) -> Self {
-        todo!()
+
+
+/// Wrapper for registering API endpoints with Controller.
+/// Implements .into() for tuples of type (String, Service)
+/// 
+/// # Examples
+/// ```
+/// fn test () {
+///     let endpoint: Endpoint = (String::new(), Service {
+///         http_method: HttpRequestType::GET,
+///         response_format: ResonseFormat::Http,
+///         action: action_example,
+///     }).into() ;
+/// }
+/// fn action_example(req: HttpRequest) -> Box<dyn ResponseTypes> {
+///     Box::new(TestReturn{ test_value :String::new()})
+/// }
+/// ```
+pub struct Endpoint {
+    route : String,
+    handler: Service,
+}
+impl Endpoint {
+    pub fn new(route:String, handler:Service) -> Self {
+        Endpoint { route, handler }
+    }
+}
+impl From<(String, Service)> for Endpoint{
+    fn from(other: (String, Service)) -> Endpoint {
+        Endpoint::new( other.0, other.1 )
+        
     }
 }
 
- 
 
 
-
-/// Interface for response types
-trait ResponseTypes {
-    /// All responses must be converted to byte arrays before sending
-    fn response_as_bytes(&self) -> &[u8];
+struct TestReturn{
+    test_value : String
+}
+impl ResponseTypes for TestReturn {
+    fn response_as_bytes(&self) -> &[u8] {
+        return self.test_value.as_bytes()
+    }
 }
 
+// fn test () {
+//     let endpoint: Endpoint = (String::new(), Service {
+//         http_method: HttpRequestType::GET,
+//         response_format: ResonseFormat::Http,
+//         action: action_example,
+//     }).into() ;
+// }
 
+// fn action_example(req: HttpRequest) -> Box<dyn ResponseTypes> {
+//     Box::new(TestReturn{ test_value :String::new()})
+// }
 // fn gen_fun<T: Default>() -> T {
 //     T::default()
 // }
