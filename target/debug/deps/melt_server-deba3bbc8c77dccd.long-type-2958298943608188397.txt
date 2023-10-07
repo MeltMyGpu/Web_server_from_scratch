@@ -1,0 +1,1 @@
+(http_request::HttpRequestType, api_services::ResponseFormat, fn(http_request::HttpRequest) -> Box<(dyn api_services::ResponseTypes + 'static)> {action_example})

@@ -7,7 +7,7 @@ use crate::http_request::{
 
 /// Enum for registering an API service repsonse format
 #[derive(Debug,PartialEq,Clone,Copy)]
-enum ResonseFormat {
+enum ResponseFormat {
     Http,
     ApplicationJson,
 }
@@ -34,7 +34,7 @@ pub struct Controller {
     delete_handlers : HashMap<String, Service>,
 }
 impl Controller {
-    // inits controller HashMaps, may not be needed
+    /// Returns a Controller with blank Hashmaps.
     pub fn new() -> Self {
         Controller { 
             get_handlers : HashMap::new(), 
@@ -43,8 +43,14 @@ impl Controller {
             delete_handlers: HashMap::new() }
     }
 
-    /// Used to register endpoints to the Controller
-    /// Can be called mulitple times
+    /// Used to register endpoints to the Controller, Can be called multiple times
+    /// 
+    /// Endpoints with varying Http Methods and Response types cna be mixed.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `handlers` - A vec containing the Endpoints that are to be registered with the Controller
+    /// 
     pub fn register_endpoints(mut self, handlers : Vec<Endpoint>) {
         handlers.into_iter()
             .for_each(|service| 
@@ -66,19 +72,28 @@ pub struct Service {
     response_format: ResonseFormat,
     action : fn(HttpRequest) -> Box<dyn ResponseTypes>,
 }
+impl From<(HttpRequestType, ResonseFormat, fn(HttpRequest) -> Box<dyn ResponseTypes>)> for Service {
+    fn from(value: (HttpRequestType, ResonseFormat, fn(HttpRequest) -> Box<dyn ResponseTypes>)) -> Self {
+        Service { 
+            http_method: value.0,
+            response_format: value.1,
+            action: value.2 
+        }
+    }
+}
 
-
-/// Wrapper for registering API endpoints with Controller.
-/// Implements .into() for tuples of type (String, Service)
+/// Wrapper for registering API endpoints with Controller 
+///  
 /// 
 /// # Examples
+/// 
 /// ```
 /// fn test () {
-///     let endpoint: Endpoint = (String::new(), Service {
+///     let endpoint: Endpoint = (String::new(), (
 ///         http_method: HttpRequestType::GET,
 ///         response_format: ResonseFormat::Http,
 ///         action: action_example,
-///     }).into() ;
+///     ).into()).into() ;
 /// }
 /// fn action_example(req: HttpRequest) -> Box<dyn ResponseTypes> {
 ///     Box::new(TestReturn{ test_value :String::new()})
@@ -108,6 +123,26 @@ struct TestReturn{
 impl ResponseTypes for TestReturn {
     fn response_as_bytes(&self) -> &[u8] {
         return self.test_value.as_bytes()
+    }
+}
+
+
+#[cfg(test)]
+mod Test{
+    use crate::api_services::*;
+    fn action_example(req: HttpRequest) -> Box<dyn ResponseTypes> {
+        Box::new(TestReturn{ test_value :String::new()})
+    }
+    #[test]
+    fn test1() {
+        fn test () {
+            let endpoint: Endpoint = (String::new(), 
+            (
+                HttpRequestType::GET,
+                ResponseFormat::Http,
+                action_example,
+            ).into()).into() ;
+        }
     }
 }
 

@@ -60,7 +60,7 @@ mod tests {
 
     #[test]
     fn provide_incorrect_status_code_returns_error() {
-        let _ = TcpListener::bind("127.0.0.1:7878").unwrap();
+        let listen = TcpListener::bind("127.0.0.1:7878").unwrap();
         let stream = TcpStream::connect("127.0.0.1:7878").unwrap();
         let fail_code: String = "crap".to_string();
 
